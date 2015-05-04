@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	aresource "github.com/AprilFool/AprilFool/resource"
 	gmux "github.com/gorilla/mux"
+	"log"
 	"net/http"
-	s "strings"
 )
 
 const (
@@ -18,13 +18,13 @@ const (
 )
 
 type API struct {
-	path           string
-	mux            *gmux.Router
-	muxInitialized bool
+	path string
+	mux  *gmux.Router
 }
 
-func NewAPI(path string) *API {
-	return &API{path: path}
+func NewAPI(path string, router *gmux.Router) *API {
+	mux := router.PathPrefix(path).Subrouter()
+	return &API{path: path, mux: mux}
 }
 
 func (api *API) requestHandler(resource aresource.Resource) http.HandlerFunc {
@@ -35,7 +35,7 @@ func (api *API) requestHandler(resource aresource.Resource) http.HandlerFunc {
 		}
 
 		var handler func(map[string][]string) (interface{}, error)
-
+		log.Printf("Method: %v\n", req.Method)
 		switch req.Method {
 		case GET:
 			if resource, ok := resource.(aresource.GetSupported); ok {
@@ -92,21 +92,13 @@ func (api *API) requestHandler(resource aresource.Resource) http.HandlerFunc {
 }
 
 func (api *API) Mux() *gmux.Router {
-	if api.muxInitialized == false {
-		api.mux = gmux.NewRouter()
-		api.muxInitialized = true
-	}
 	return api.mux
 }
 
 func (api *API) AddResource(resource aresource.Resource) {
 	var path string
 
-	if s.HasSuffix(api.path, "/") {
-		path = api.path + resource.Name()
-	} else {
-		path = api.path + "/" + resource.Name()
-	}
+	path = "/" + resource.Name()
 	api.Mux().HandleFunc(path, api.requestHandler(resource))
 	api.Mux().HandleFunc(path+"/{id}", api.requestHandler(resource))
 }
