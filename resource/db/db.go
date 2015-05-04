@@ -8,21 +8,16 @@ import (
 )
 
 var connection *sql.DB = nil
-var name string = ""
 
-func SetConnection(n string) {
-	name = n
-}
-
-func GetConnection() *sql.DB {
+func GetConnection(option string) *sql.DB {
 	var err error
 
 	if connection == nil {
-		if name == "" {
+		if option == "" {
 			u, _ := user.Current()
-			name = "user="+u.Username+" password="+u.Username+"1234 dbname="+u.Username+".test"
+			option = "user=" + u.Username + " password=" + u.Username + "1234 dbname=" + u.Username + ".test sslmode=disable"
 		}
-		connection, err = sql.Open("postgres", name)
+		connection, err = sql.Open("postgres", option)
 		if err != nil {
 			log.Fatal(err)
 		}

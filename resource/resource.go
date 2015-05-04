@@ -1,7 +1,12 @@
 package resource
 
+import (
+	"log"
+)
+
 type Resource interface {
 	Name() string
+	Logger() *log.Logger
 }
 
 type GetSupported interface {

@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS "User" (
     created     TIMESTAMP WITHOUT TIME ZONE,
     mail        VARCHAR(50),
     password    VARCHAR(60),
+    sugar       VARCHAR(30),
     name        VARCHAR(50),
     photo       VARCHAR(20),
     "group"     INTEGER REFERENCES "Group" (id),
